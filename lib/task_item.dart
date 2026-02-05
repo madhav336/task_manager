@@ -16,7 +16,7 @@ class TaskItem extends HiveObject {
   
   TaskItem({required this.name, this.isDone=false,this.desc='',this.dueDate});
 
-  Map<String,dynamic> toMap(){
+  Map<String,dynamic> toMap(){ //jsonifying the firebase data
     return{
       'name':name,
       'desc':desc,
@@ -24,7 +24,7 @@ class TaskItem extends HiveObject {
       'dueDate':dueDate?.millisecondsSinceEpoch,
     };
   }
-  factory TaskItem.fromMap(Map<String,dynamic>map){
+  factory TaskItem.fromMap(Map<String,dynamic>map){  //converts the map data to a taskItem
     return TaskItem(
       name: map['name']??'No name',
       desc: map['desc']??'',
@@ -32,7 +32,5 @@ class TaskItem extends HiveObject {
       dueDate: map['dueDate']!=null?DateTime.fromMillisecondsSinceEpoch(map['dueDate']):null,
       );
   }
-  void toggleDone(){
-    isDone!=isDone;
-  }
+  
 }

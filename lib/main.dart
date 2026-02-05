@@ -9,9 +9,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 void main()async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
-  Hive.registerAdapter(TaskItemAdapter());
+  WidgetsFlutterBinding.ensureInitialized(); //ensuring firebase is up and running
+  await Hive.initFlutter(); //intialize hive
+  Hive.registerAdapter(TaskItemAdapter());  
   await Hive.openBox<TaskItem>('tasks');
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform
@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
         textTheme: GoogleFonts.poppinsTextTheme(
           ThemeData(brightness:Brightness.dark).textTheme,
         ),
-        colorScheme: ColorScheme.fromSeed(
+        colorScheme: ColorScheme.fromSeed( 
           seedColor: const Color(0xFF2E7D32),
           brightness: Brightness.dark,
           primary: const Color(0xFF4CAF50),
@@ -77,16 +77,16 @@ class MyApp extends StatelessWidget {
       ),
       
       
-      home:StreamBuilder<User?>(stream: FirebaseAuth.instance.authStateChanges(), builder: (context,asyncSnapshot){
-        if(asyncSnapshot.connectionState==ConnectionState.waiting){
+      home:StreamBuilder<User?>(stream: FirebaseAuth.instance.authStateChanges(), builder: (context,asyncSnapshot){ //live loading enabled by streambuilder
+        if(asyncSnapshot.connectionState==ConnectionState.waiting){ //if still connecting
           return const Scaffold(
-            body: Center(child: CircularProgressIndicator(),)
+            body: Center(child: CircularProgressIndicator(),) //show a loading animation
           );
         }
-        if(asyncSnapshot.hasData){
-          return const TaskScreen();
+        if(asyncSnapshot.hasData){ //if we log in
+          return const TaskScreen(); //show the task screen
         }
-        return const LoginScreen();
+        return const LoginScreen(); //else just show the login screen by default
       })
     );
   }

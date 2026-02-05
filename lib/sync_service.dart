@@ -15,12 +15,12 @@ class SyncService {
     var connectivityResult=await(Connectivity().checkConnectivity()); //check connectivity using connectivity_plus library
     bool hasInternet=(connectivityResult.contains(ConnectivityResult.mobile)||connectivityResult.contains(ConnectivityResult.wifi)||connectivityResult.contains(ConnectivityResult.ethernet)); //it returns a List so find the desired values
     bool isLoggedIn=FirebaseAuth.instance.currentUser!=null; 
-    return hasInternet&&isLoggedIn;
+    return hasInternet&&isLoggedIn; 
   }
   static Future<void> syncTask(TaskItem task)async{
     if(await canSync()){
       try{
-        await userTasksRef!.doc(task.key.toString()).set(task.toMap());
+        await userTasksRef!.doc(task.key.toString()).set(task.toMap()); //sync task to firebase
       }
       catch(e){
         //
@@ -32,28 +32,28 @@ class SyncService {
   }
   static Future<void>deleteTask(dynamic taskKey)async{
     if(await canSync()){
-      await userTasksRef!.doc(taskKey.toString()).delete();
+      await userTasksRef!.doc(taskKey.toString()).delete(); //delete from firebase
     }
   }
   static Future<void>pullFromCloud(Box<TaskItem>box)async{
     if(await canSync()){
       try{
-      final snapshot=await userTasksRef!.get();
-      final cloudKeys=<int>{};
-      for(var doc in snapshot.docs){
-        final data=doc.data() as Map<String,dynamic>;
-        final task=TaskItem.fromMap(data);
-        final key=int.tryParse(doc.id);
-        if(key!=null){
-          await box.put(key,task);
-          cloudKeys.add(key);
+      final snapshot=await userTasksRef!.get(); //get task snapshot
+      final cloudKeys=<int>{}; //create empty set of keys present in cloud
+      for(var doc in snapshot.docs){ //for each task in tasks
+        final data=doc.data() as Map<String,dynamic>; //get data as a json
+        final task=TaskItem.fromMap(data); //create task from json data
+        final key=int.tryParse(doc.id); //get key as an integer
+        if(key!=null){ 
+          await box.put(key,task); //add to hive
+          cloudKeys.add(key); //add to safe list
         }
         
       }
-      final localKeys=box.keys.cast<int>().toSet();
-      final keysToDelete=localKeys.difference(cloudKeys);
+      final localKeys=box.keys.cast<int>().toSet(); //find keys of hive
+      final keysToDelete=localKeys.difference(cloudKeys); //keys which are in hive but not in database
       for(var key in keysToDelete){
-        await box.delete(key);
+        await box.delete(key); //delete
       }
     }
     catch(e){
